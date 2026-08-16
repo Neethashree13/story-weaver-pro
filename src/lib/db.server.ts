@@ -27,7 +27,14 @@ export function getDb(): PrismaClient {
   }
 
   console.log("🔌 Creating new Prisma client with DATABASE_URL:", connectionString.split("@")[1] || "***");
-  const client = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
+  // Managed cloud Postgres terminates TLS with its own certificate chain.
+  const needsRelaxedTls = !!managed && connectionString === managed;
+  const client = new PrismaClient({
+    adapter: new PrismaPg({
+      connectionString,
+      ...(needsRelaxedTls ? { ssl: { rejectUnauthorized: false } } : {}),
+    }),
+  });
   globalThis.__comicPrisma = client;
   console.log("✅ Prisma client initialized");
   return client;
