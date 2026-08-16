@@ -16,7 +16,12 @@ export function getDb(): PrismaClient {
     return globalThis.__comicPrisma;
   }
 
-  const connectionString = process.env["DATABASE_URL"];
+  const configured = process.env["DATABASE_URL"];
+  const managed = process.env["SUPABASE_DB_URL"];
+  // A localhost URL only works on a developer machine — the hosted app cannot
+  // reach it, so fall back to the managed cloud database when one is available.
+  const isLocal = !!configured && /@(localhost|127\.0\.0\.1)\b/.test(configured);
+  const connectionString = (isLocal ? managed : configured) ?? managed;
   if (!connectionString) {
     throw new Error("DATABASE_URL is not set. Point it at your PostgreSQL database.");
   }
