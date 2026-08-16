@@ -16,13 +16,28 @@ export function getDb(): PrismaClient {
     return globalThis.__comicPrisma;
   }
 
-  const connectionString = process.env["DATABASE_URL"];
-  if (!connectionString) {
+  const configured = process.env["DATABASE_URL"];
+  const managed = process.env["SUPABASE_DB_URL"];
+  // A localhost URL only works on a developer machine — the hosted app cannot
+  // reach it, so fall back to the managed cloud database when one is available.
+  const isLocal = !!configured && /@(localhost|127\.0\.0\.1)\b/.test(configured);
+  const resolved = (isLocal ? managed : configured) ?? managed;
+  if (!resolved) {
     throw new Error("DATABASE_URL is not set. Point it at your PostgreSQL database.");
   }
+  // Managed cloud Postgres presents its own certificate chain; skip chain verification.
+  const needsRelaxedTls = !!managed && resolved === managed;
+  const connectionString = needsRelaxedTls && !/[?&]sslmode=/.test(resolved)
+    ? `${resolved}${resolved.includes("?") ? "&" : "?"}sslmode=no-verify`
+    : resolved;
 
   console.log("🔌 Creating new Prisma client with DATABASE_URL:", connectionString.split("@")[1] || "***");
-  const client = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
+  const client = new PrismaClient({
+    adapter: new PrismaPg({
+      connectionString,
+      ...(needsRelaxedTls ? { ssl: { rejectUnauthorized: false } } : {}),
+    }),
+  });
   globalThis.__comicPrisma = client;
   console.log("✅ Prisma client initialized");
   return client;

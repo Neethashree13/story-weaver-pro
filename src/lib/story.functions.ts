@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { streamText } from "ai";
 import { z } from "zod";
+import { CINEMATIC_SYSTEM_PROMPT } from "./story-prompt";
 
 const InputSchema = z.object({
   idea: z.string(),
@@ -53,8 +54,10 @@ export const generateStory = createServerFn({ method: "POST" })
       `Target video duration: ${data.duration}`,
       `Narrator voice: ${data.voice}`,
       "",
-      `Write a comic-story treatment with exactly ${sceneCount} scenes.`,
+      `Write a cinematic motion-comic screenplay with exactly ${sceneCount} scenes.`,
       "Include 2-4 characters with distinctive visual descriptions so panels stay consistent, and one short outline beat per scene.",
+      "Every scene must be a full movie moment: weather, light, sound, smell, body language and natural dialogue.",
+      "Build the emotional connection before the turning point, and land an emotional payoff in the final scene.",
       "",
       "Reply with ONLY raw JSON (no markdown fence, no commentary) using exactly this shape:",
       `{
@@ -65,8 +68,8 @@ export const generateStory = createServerFn({ method: "POST" })
   "scenes": [{
     "title": string,
     "panelPrompt": string,   // vivid image-generation prompt including the art style and character look
-    "narration": string,     // 1-2 narrated sentences
-    "dialogue": string,      // one line formatted as NAME: line
+    "narration": string,     // 4-8 immersive narrated sentences: atmosphere, light, sound, sensory detail, emotion shown through action
+    "dialogue": string,      // 2-4 natural exchanged lines, each formatted as NAME: line, separated by newlines
     "music": string          // short royalty-free background music cue for the genre
   }],
   "ending": string
@@ -75,8 +78,7 @@ export const generateStory = createServerFn({ method: "POST" })
 
     const result = streamText({
      model: gateway("gemini-3.5-flash"),
-      system:
-        "You are a comic-story director. You write tight, cinematic, genre-true comic scripts made to become short narrated motion-comic videos. You always answer with raw JSON matching the requested shape exactly.",
+      system: `${CINEMATIC_SYSTEM_PROMPT}\n\nYou always answer with raw JSON matching the requested shape exactly, with no markdown fence and no commentary.`,
       prompt,
     });
 
