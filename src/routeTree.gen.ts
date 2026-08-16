@@ -10,43 +10,128 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiStoryRouteImport } from './routes/api/story'
+import { Route as CharactersRouteImport } from './routes/characters'
+import { Route as CreateRouteImport } from './routes/create'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CharacterCharacterIdRouteImport } from './routes/character.$characterId'
+import { Route as ProjectProjectIdRouteImport } from './routes/project.$projectId'
+import { Route as StudioProjectIdRouteImport } from './routes/studio.$projectId'
+import { Route as ApiPublicFilesSplatRouteImport } from './routes/api/public/files.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiStoryRoute = ApiStoryRouteImport.update({
-  id: '/api/story',
-  path: '/api/story',
+const CharactersRoute = CharactersRouteImport.update({
+  id: '/characters',
+  path: '/characters',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreateRoute = CreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CharacterCharacterIdRoute = CharacterCharacterIdRouteImport.update({
+  id: '/character/$characterId',
+  path: '/character/$characterId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectProjectIdRoute = ProjectProjectIdRouteImport.update({
+  id: '/project/$projectId',
+  path: '/project/$projectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioProjectIdRoute = StudioProjectIdRouteImport.update({
+  id: '/studio/$projectId',
+  path: '/studio/$projectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicFilesSplatRoute = ApiPublicFilesSplatRouteImport.update({
+  id: '/api/public/files/$',
+  path: '/api/public/files/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api/story': typeof ApiStoryRoute
+  '/characters': typeof CharactersRoute
+  '/create': typeof CreateRoute
+  '/dashboard': typeof DashboardRoute
+  '/character/$characterId': typeof CharacterCharacterIdRoute
+  '/project/$projectId': typeof ProjectProjectIdRoute
+  '/studio/$projectId': typeof StudioProjectIdRoute
+  '/api/public/files/$': typeof ApiPublicFilesSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api/story': typeof ApiStoryRoute
+  '/characters': typeof CharactersRoute
+  '/create': typeof CreateRoute
+  '/dashboard': typeof DashboardRoute
+  '/character/$characterId': typeof CharacterCharacterIdRoute
+  '/project/$projectId': typeof ProjectProjectIdRoute
+  '/studio/$projectId': typeof StudioProjectIdRoute
+  '/api/public/files/$': typeof ApiPublicFilesSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api/story': typeof ApiStoryRoute
+  '/characters': typeof CharactersRoute
+  '/create': typeof CreateRoute
+  '/dashboard': typeof DashboardRoute
+  '/character/$characterId': typeof CharacterCharacterIdRoute
+  '/project/$projectId': typeof ProjectProjectIdRoute
+  '/studio/$projectId': typeof StudioProjectIdRoute
+  '/api/public/files/$': typeof ApiPublicFilesSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/story'
+  fullPaths:
+    | '/'
+    | '/characters'
+    | '/create'
+    | '/dashboard'
+    | '/character/$characterId'
+    | '/project/$projectId'
+    | '/studio/$projectId'
+    | '/api/public/files/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/story'
-  id: '__root__' | '/' | '/api/story'
+  to:
+    | '/'
+    | '/characters'
+    | '/create'
+    | '/dashboard'
+    | '/character/$characterId'
+    | '/project/$projectId'
+    | '/studio/$projectId'
+    | '/api/public/files/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/characters'
+    | '/create'
+    | '/dashboard'
+    | '/character/$characterId'
+    | '/project/$projectId'
+    | '/studio/$projectId'
+    | '/api/public/files/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiStoryRoute: typeof ApiStoryRoute
+  CharactersRoute: typeof CharactersRoute
+  CreateRoute: typeof CreateRoute
+  DashboardRoute: typeof DashboardRoute
+  CharacterCharacterIdRoute: typeof CharacterCharacterIdRoute
+  ProjectProjectIdRoute: typeof ProjectProjectIdRoute
+  StudioProjectIdRoute: typeof StudioProjectIdRoute
+  ApiPublicFilesSplatRoute: typeof ApiPublicFilesSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,11 +143,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/story': {
-      id: '/api/story'
-      path: '/api/story'
-      fullPath: '/api/story'
-      preLoaderRoute: typeof ApiStoryRouteImport
+    '/characters': {
+      id: '/characters'
+      path: '/characters'
+      fullPath: '/characters'
+      preLoaderRoute: typeof CharactersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create': {
+      id: '/create'
+      path: '/create'
+      fullPath: '/create'
+      preLoaderRoute: typeof CreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/character/$characterId': {
+      id: '/character/$characterId'
+      path: '/character/$characterId'
+      fullPath: '/character/$characterId'
+      preLoaderRoute: typeof CharacterCharacterIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/project/$projectId': {
+      id: '/project/$projectId'
+      path: '/project/$projectId'
+      fullPath: '/project/$projectId'
+      preLoaderRoute: typeof ProjectProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/studio/$projectId': {
+      id: '/studio/$projectId'
+      path: '/studio/$projectId'
+      fullPath: '/studio/$projectId'
+      preLoaderRoute: typeof StudioProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/files/$': {
+      id: '/api/public/files/$'
+      path: '/api/public/files/$'
+      fullPath: '/api/public/files/$'
+      preLoaderRoute: typeof ApiPublicFilesSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -70,7 +197,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiStoryRoute: ApiStoryRoute,
+  CharactersRoute: CharactersRoute,
+  CreateRoute: CreateRoute,
+  DashboardRoute: DashboardRoute,
+  CharacterCharacterIdRoute: CharacterCharacterIdRoute,
+  ProjectProjectIdRoute: ProjectProjectIdRoute,
+  StudioProjectIdRoute: StudioProjectIdRoute,
+  ApiPublicFilesSplatRoute: ApiPublicFilesSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

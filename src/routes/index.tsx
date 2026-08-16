@@ -1,213 +1,120 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
-import { Clapperboard, Loader2, Sparkles, Square } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { StoryView } from "@/components/story/StoryView";
-import { LENGTHS, TONES } from "@/lib/story-prompt";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { SiteHeader } from "@/components/SiteHeader";
+import { GENRES } from "@/lib/comic-options";
+import heroImage from "@/assets/hero-comic.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Motion Comic Studio — Cinematic Story Generator" },
+      { title: "ComicVerse AI — Comic story videos from one idea" },
       {
         name: "description",
         content:
-          "Turn a single idea into a long-form cinematic story with scene-by-scene atmosphere, natural dialogue, and ready-to-use image prompts.",
+          "Type an idea, pick a genre, and ComicVerse AI writes the script, characters, panels, narration and music for your comic-story video.",
       },
-      { property: "og:title", content: "Motion Comic Studio — Cinematic Story Generator" },
+      { property: "og:title", content: "ComicVerse AI — Comic story videos from one idea" },
       {
         property: "og:description",
-        content:
-          "Write immersive, movie-like chapters with sensory detail and key-frame image prompts for narration and art.",
+        content: "Nine genres. Full script, panels, narration and music from a single line of story.",
       },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
 });
 
+const PIPELINE = [
+  { step: "01", title: "Story", body: "Title, characters, outline and ending." },
+  { step: "02", title: "Scenes", body: "Beat-by-beat breakdown with panel prompts." },
+  { step: "03", title: "Narration", body: "Voice-ready narration and dialogue." },
+  { step: "04", title: "Score", body: "Genre-matched royalty-free music cues." },
+];
+
 function Index() {
-  const [idea, setIdea] = useState("");
-  const [setting, setSetting] = useState("");
-  const [tone, setTone] = useState<string>(TONES[0]);
-  const [length, setLength] = useState<string>(LENGTHS[1].value);
-  const [story, setStory] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const abortRef = useRef<AbortController | null>(null);
-
-  async function generate() {
-    if (!idea.trim() || loading) return;
-    setLoading(true);
-    setError("");
-    setStory("");
-    const controller = new AbortController();
-    abortRef.current = controller;
-    try {
-      const res = await fetch("/api/story", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea, setting, tone, length }),
-        signal: controller.signal,
-      });
-      if (!res.ok || !res.body) {
-        setError((await res.text()) || "The story engine failed. Please try again.");
-        return;
-      }
-      const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
-      for (;;) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        setStory((prev) => prev + value);
-      }
-    } catch (e) {
-      if ((e as Error)?.name !== "AbortError")
-        setError("Connection lost while writing the story.");
-    } finally {
-      setLoading(false);
-      abortRef.current = null;
-    }
-  }
-
   return (
-    <main className="grain min-h-screen">
-      <div className="grain-overlay fixed inset-0 z-50" aria-hidden />
+    <div className="min-h-screen">
+      <SiteHeader />
 
-      <header className="mx-auto max-w-5xl px-6 pt-16 pb-10 text-center">
-        <p className="text-ui text-xs tracking-[0.35em] text-primary uppercase">
-          Motion Comic Studio
-        </p>
-        <h1 className="mt-4 text-4xl leading-tight sm:text-6xl">
-          Every chapter, a movie scene
-        </h1>
-        <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground italic">
-          Give it a spark. It returns weather, lighting, breath, dialogue — and the key frame
-          to draw.
-        </p>
-      </header>
-
-      <section className="mx-auto max-w-3xl px-6">
-        <div className="shadow-projector rounded-xl border border-border bg-card/80 p-6 backdrop-blur-sm">
-          <div className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="idea" className="text-ui">
-                Story premise
-              </Label>
-              <Textarea
-                id="idea"
-                value={idea}
-                onChange={(e) => setIdea(e.target.value)}
-                rows={4}
-                placeholder="A lighthouse keeper receives a letter from someone who drowned twelve years ago."
-                className="text-ui resize-none bg-background/60"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="setting" className="text-ui">
-                Setting or world <span className="text-muted-foreground">(optional)</span>
-              </Label>
-              <Input
-                id="setting"
-                value={setting}
-                onChange={(e) => setSetting(e.target.value)}
-                placeholder="Rain-soaked coastal town, late autumn, 1974"
-                className="text-ui bg-background/60"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-ui">Emotional tone</Label>
-              <div className="flex flex-wrap gap-2">
-                {TONES.map((t) => (
-                  <Button
-                    key={t}
-                    type="button"
-                    size="sm"
-                    variant={tone === t ? "default" : "outline"}
-                    className="text-ui"
-                    onClick={() => setTone(t)}
-                  >
-                    {t}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-ui">Runtime</Label>
-              <div className="flex flex-wrap gap-2">
-                {LENGTHS.map((l) => (
-                  <Button
-                    key={l.value}
-                    type="button"
-                    size="sm"
-                    variant={length === l.value ? "default" : "outline"}
-                    className="text-ui"
-                    onClick={() => setLength(l.value)}
-                  >
-                    {l.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <Button
-                onClick={generate}
-                disabled={loading || !idea.trim()}
-                size="lg"
-                className="text-ui flex-1"
-              >
-                {loading ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <Clapperboard />
-                )}
-                {loading ? "Rolling camera…" : "Generate the story"}
-              </Button>
-              {loading && (
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-ui"
-                  onClick={() => abortRef.current?.abort()}
-                >
-                  <Square /> Cut
-                </Button>
-              )}
-            </div>
-
-            {error && (
-              <p className="text-ui text-sm text-destructive" role="alert">
-                {error}
+      <main>
+        <section className="hero-surface relative overflow-hidden border-b border-border">
+          <div className="halftone absolute inset-0 opacity-60" aria-hidden />
+          <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-20 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:py-28">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">
+                Motion comics, generated
               </p>
-            )}
-          </div>
-        </div>
-      </section>
+              <h1 className="mt-5 text-6xl leading-[0.92] sm:text-7xl lg:text-8xl">
+                One idea in.
+                <br />
+                <span className="ember-text">A comic story out.</span>
+              </h1>
+              <p className="mt-6 max-w-lg text-lg text-muted-foreground">
+                Describe a haunted mansion, a doomed romance, a heist on Mars. ComicVerse AI
+                builds the script, the cast, the panels, the narration and the score.
+              </p>
+              <Link
+                to="/create"
+                className="mt-9 inline-block rounded-sm bg-primary px-8 py-4 font-display text-xl tracking-wider text-primary-foreground panel-glow transition-transform hover:-translate-y-0.5"
+              >
+                Generate my story
+              </Link>
+            </div>
 
-      <section className="mx-auto max-w-5xl px-6 py-16">
-        {story ? (
-          <div className="shadow-projector rounded-xl border border-border bg-card/60 px-6 py-10 backdrop-blur-sm sm:px-12">
-            <StoryView story={story} />
-            {loading && (
-              <span className="ml-1 inline-block h-5 w-2 animate-pulse bg-primary align-middle" />
-            )}
+            <div className="panel overflow-hidden rounded-sm">
+              <img
+                src={heroImage}
+                alt="Comic panels showing a haunted mansion, a ghost in a mirror and a caped figure"
+                width={1600}
+                height={1008}
+                className="h-full w-full object-cover"
+              />
+            </div>
           </div>
-        ) : (
-          !loading && (
-            <p className="text-ui flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <Sparkles className="size-4 text-primary" />
-              Your scene will appear here, chapter by chapter.
+        </section>
+
+        <section className="mx-auto max-w-6xl px-5 py-20">
+          <h2 className="text-4xl">The pipeline</h2>
+          <div className="mt-8 grid gap-px overflow-hidden rounded-sm border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+            {PIPELINE.map((item) => (
+              <div key={item.step} className="bg-card p-6">
+                <span className="font-display text-3xl text-primary">{item.step}</span>
+                <h3 className="mt-3 text-2xl">{item.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="border-y border-border bg-card/40">
+          <div className="mx-auto max-w-6xl px-5 py-20">
+            <h2 className="text-4xl">Nine genres, nine moods</h2>
+            <p className="mt-3 max-w-xl text-muted-foreground">
+              Each genre reshapes the palette, the pacing, the narrator and the score.
             </p>
-          )
-        )}
-      </section>
-    </main>
+            <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {GENRES.map((genre) => (
+                <li key={genre.id} className="panel rounded-sm p-5">
+                  <h3 className="text-2xl">{genre.label}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{genre.blurb}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-3xl px-5 py-24 text-center">
+          <h2 className="text-5xl">Your first panel is one sentence away</h2>
+          <Link
+            to="/create"
+            className="mt-8 inline-block rounded-sm bg-primary px-8 py-4 font-display text-xl tracking-wider text-primary-foreground panel-glow"
+          >
+            Start creating
+          </Link>
+        </section>
+      </main>
+
+      <footer className="border-t border-border py-8 text-center text-xs uppercase tracking-[0.25em] text-muted-foreground">
+        ComicVerse AI
+      </footer>
+    </div>
   );
 }
