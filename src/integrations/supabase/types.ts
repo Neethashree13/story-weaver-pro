@@ -440,6 +440,7 @@ export type Database = {
           id: string
           music: string | null
           narration: string | null
+          panel_prompt: string | null
           project_id: string
           scene_number: number
           title: string
@@ -451,6 +452,7 @@ export type Database = {
           id?: string
           music?: string | null
           narration?: string | null
+          panel_prompt?: string | null
           project_id: string
           scene_number: number
           title: string
@@ -462,6 +464,7 @@ export type Database = {
           id?: string
           music?: string | null
           narration?: string | null
+          panel_prompt?: string | null
           project_id?: string
           scene_number?: number
           title?: string
